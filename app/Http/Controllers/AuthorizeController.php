@@ -77,8 +77,8 @@ class AuthorizeController extends Controller
         $controller = new AnetController\ARBCreateSubscriptionController($request);
 
         $response = $controller->executeWithApiResponse( \net\authorize\api\constants\ANetEnvironment::PRODUCTION);
-//        $response = $controller->executeWithApiResponse( \net\authorize\api\constants\ANetEnvironment::SANDBOX);
-//        $response = $controller->executeWithApiResponse( "https://secure.authorize.net/gateway/transact.dll");
+
+
 
         if (($response != null) && ($response->getMessages()->getResultCode() == "Ok") )
         {
@@ -198,27 +198,43 @@ class AuthorizeController extends Controller
         $request->setRefId( $refId);
         $request->setTransactionRequest($transactionRequestType);
         $controller = new AnetController\CreateTransactionController($request);
+        // $response = $controller->executeWithApiResponse(\net\authorize\api\constants\ANetEnvironment::SANDBOX);
         $response = $controller->executeWithApiResponse(\net\authorize\api\constants\ANetEnvironment::PRODUCTION);
+        
 
-        if ($response != null)
+        if (($response != null) && ($response->getMessages()->getResultCode() == "Ok") )
         {
             $tresponse = $response->getTransactionResponse();
 
-            if (($tresponse != null) && ($tresponse->getResponseCode()=="1"))
-            {
-                echo "Charge Credit Card AUTH CODE : " . $tresponse->getAuthCode() . "\n";
-                echo "Charge Credit Card TRANS ID  : " . $tresponse->getTransId() . "\n";
-            }
-            else
-            {
-                echo "Charge Credit Card ERROR :  Invalid response\n";
-            }
+            echo "SUCCESS: transaction ID : " . $tresponse->getTransId() . "\n";
         }
         else
         {
-            echo  "Charge Credit Card Null response returned";
+            echo "ERROR :  Invalid response\n";
+            $errorMessages = $response->getMessages()->getMessage();
+
+            echo "Response : " . $errorMessages[0]->getCode() . "  " .$errorMessages[0]->getText() . "\n";
         }
-        dd($tresponse);
+
+        // if ($response != null)
+        // {
+        //     $tresponse = $response->getTransactionResponse();
+
+        //     if (($tresponse != null) && ($tresponse->getResponseCode()=="1"))
+        //     {
+        //         echo "Charge Credit Card AUTH CODE : " . $tresponse->getAuthCode() . "\n";
+        //         echo "Charge Credit Card TRANS ID  : " . $tresponse->getTransId() . "\n";
+        //     }
+        //     else
+        //     {
+        //         echo "Charge Credit Card ERROR :  Invalid response\n";
+        //     }
+        // }
+        // else
+        // {
+        //     echo  "Charge Credit Card Null response returned";
+        // }
+        // dd($tresponse);
 //        return redirect('/');
     }
 
