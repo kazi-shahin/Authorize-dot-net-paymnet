@@ -19,4 +19,6 @@ Route::get('/checkout', 'AuthorizeController@index');
 Route::post('/checkout', 'AuthorizeController@chargeCreditCard');
 Route::get('/recurringbilling', 'AuthorizeController@recurringbilling');
 Route::post('/recurringbilling', 'AuthorizeController@createSubscription');
+Route::get('/chargeCreditCardForService', 'AuthorizeController@chargeCreditCardForServiceview');
+Route::post('/chargeCreditCardForService', 'AuthorizeController@chargeCreditCardForService');
 //Route::post('/checkout', 'AuthorizeController@chargeCreditCard');

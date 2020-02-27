@@ -11,6 +11,10 @@ class AuthorizeController extends Controller
         return view('checkout.authorize');
     }
 
+    public function chargeCreditCardForServiceview()
+    {
+        return view('checkout.service');
+    }
     public function recurringbilling()
     {
         return view('checkout.recurringbilling');
@@ -91,10 +95,6 @@ class AuthorizeController extends Controller
 //        return $response;
     }
 
-
-
-
-
     function createSubscriptionFromCustomerProfile($intervalLength, $customerProfileId,
                                                    $customerPaymentProfileId, $customerAddressId
     ) {
@@ -139,7 +139,7 @@ class AuthorizeController extends Controller
         $request->setSubscription($subscription);
         $controller = new AnetController\ARBCreateSubscriptionController($request);
 
-        $response = $controller->executeWithApiResponse( \net\authorize\api\constants\ANetEnvironment::SANDBOX);
+        $response = $controller->executeWithApiResponse( \net\authorize\api\constants\ANetEnvironment::PRODUCTION);
 
         if (($response != null) && ($response->getMessages()->getResultCode() == "Ok") )
         {
@@ -158,6 +158,69 @@ class AuthorizeController extends Controller
     //if(!defined('DONT_RUN_SAMPLES'));
 //
     //
+    public function chargeCreditCardForService(Request $request)
+    {
+        // Common setup for API credentials
+        $merchantAuthentication = new AnetAPI\MerchantAuthenticationType();
+        $merchantAuthentication->setName(config('services.authorize.login'));
+        $merchantAuthentication->setTransactionKey(config('services.authorize.key'));
+        $refId = 'ref'.time();
+
+        // Create the payment data for a credit card
+        $creditCard = new AnetAPI\CreditCardType();
+        $creditCard->setCardNumber($request->cnumber);
+        // $creditCard->setExpirationDate( "2038-12");
+        $expiry = $request->card_expiry_year . '-' . $request->card_expiry_month;
+        $creditCard->setExpirationDate($expiry);
+
+        $paymentOne = new AnetAPI\PaymentType();
+        $paymentOne->setCreditCard($creditCard);
+
+
+        $billTo = new AnetAPI\NameAndAddressType();
+        $billTo->setFirstName("John");
+        $billTo->setLastName("Smith");
+
+        $order = new AnetAPI\OrderType();
+        $order->setInvoiceNumber($request->InvoiceNumber);
+        $order->setDescription("Description of the subscription");
+
+        // Create a transaction
+        $transactionRequestType = new AnetAPI\TransactionRequestType();
+        $transactionRequestType->setTransactionType("authCaptureTransaction");
+        $transactionRequestType->setAmount($request->camount);
+        $transactionRequestType->setPayment($paymentOne);
+        $transactionRequestType->setOrder($order);
+//        $transactionRequestType->setBillTo($billTo);
+
+        $request = new AnetAPI\CreateTransactionRequest();
+        $request->setMerchantAuthentication($merchantAuthentication);
+        $request->setRefId( $refId);
+        $request->setTransactionRequest($transactionRequestType);
+        $controller = new AnetController\CreateTransactionController($request);
+        $response = $controller->executeWithApiResponse(\net\authorize\api\constants\ANetEnvironment::PRODUCTION);
+
+        if ($response != null)
+        {
+            $tresponse = $response->getTransactionResponse();
+
+            if (($tresponse != null) && ($tresponse->getResponseCode()=="1"))
+            {
+                echo "Charge Credit Card AUTH CODE : " . $tresponse->getAuthCode() . "\n";
+                echo "Charge Credit Card TRANS ID  : " . $tresponse->getTransId() . "\n";
+            }
+            else
+            {
+                echo "Charge Credit Card ERROR :  Invalid response\n";
+            }
+        }
+        else
+        {
+            echo  "Charge Credit Card Null response returned";
+        }
+        dd($tresponse);
+//        return redirect('/');
+    }
 
     public function chargeCreditCard(Request $request)
     {
@@ -166,7 +229,7 @@ class AuthorizeController extends Controller
         $merchantAuthentication->setName(config('services.authorize.login'));
         $merchantAuthentication->setTransactionKey(config('services.authorize.key'));
         $refId = 'ref'.time();
-// Create the payment data for a credit card
+        // Create the payment data for a credit card
         $creditCard = new AnetAPI\CreditCardType();
         $creditCard->setCardNumber($request->cnumber);
         // $creditCard->setExpirationDate( "2038-12");
@@ -174,7 +237,7 @@ class AuthorizeController extends Controller
         $creditCard->setExpirationDate($expiry);
         $paymentOne = new AnetAPI\PaymentType();
         $paymentOne->setCreditCard($creditCard);
-// Create a transaction
+        // Create a transaction
         $transactionRequestType = new AnetAPI\TransactionRequestType();
         $transactionRequestType->setTransactionType("authCaptureTransaction");
         $transactionRequestType->setAmount($request->camount);
@@ -184,7 +247,7 @@ class AuthorizeController extends Controller
         $request->setRefId( $refId);
         $request->setTransactionRequest($transactionRequestType);
         $controller = new AnetController\CreateTransactionController($request);
-        $response = $controller->executeWithApiResponse(\net\authorize\api\constants\ANetEnvironment::SANDBOX);
+        $response = $controller->executeWithApiResponse(\net\authorize\api\constants\ANetEnvironment::PRODUCTION);
 
         if ($response != null)
         {
