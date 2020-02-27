@@ -16,7 +16,7 @@ Route::get('/', function () {
 });
 
 Route::get('/checkout', 'AuthorizeController@index');
-Route::post('/checkout', 'AuthorizeController@createSubscriptionFromCustomer');
+Route::post('/checkout', 'AuthorizeController@chargeCreditCard');
 Route::get('/recurringbilling', 'AuthorizeController@recurringbilling');
 Route::post('/recurringbilling', 'AuthorizeController@createSubscription');
 //Route::post('/checkout', 'AuthorizeController@chargeCreditCard');

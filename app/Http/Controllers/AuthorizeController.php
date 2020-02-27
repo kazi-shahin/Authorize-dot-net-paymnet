@@ -72,9 +72,9 @@ class AuthorizeController extends Controller
         $request->setSubscription($subscription);
         $controller = new AnetController\ARBCreateSubscriptionController($request);
 
-        //$response = $controller->executeWithApiResponse( \net\authorize\api\constants\ANetEnvironment::SANDBOX);
-        $response = $controller->executeWithApiResponse( "https://secure.authorize.net/gateway/transact.dll");
-
+        $response = $controller->executeWithApiResponse( \net\authorize\api\constants\ANetEnvironment::PRODUCTION);
+//        $response = $controller->executeWithApiResponse( \net\authorize\api\constants\ANetEnvironment::SANDBOX);
+//        $response = $controller->executeWithApiResponse( "https://secure.authorize.net/gateway/transact.dll");
 
         if (($response != null) && ($response->getMessages()->getResultCode() == "Ok") )
         {
