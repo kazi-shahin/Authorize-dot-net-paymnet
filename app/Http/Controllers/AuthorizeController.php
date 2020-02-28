@@ -264,26 +264,24 @@ class AuthorizeController extends Controller
         $request->setTransactionRequest($transactionRequestType);
         $controller = new AnetController\CreateTransactionController($request);
         $response = $controller->executeWithApiResponse(\net\authorize\api\constants\ANetEnvironment::PRODUCTION);
-
-        if ($response != null)
+        if (($response != null) && ($response->getMessages()->getResultCode() == "Ok") )
         {
             $tresponse = $response->getTransactionResponse();
 
-            if (($tresponse != null) && ($tresponse->getResponseCode()=="1"))
-            {
-                echo "Charge Credit Card AUTH CODE : " . $tresponse->getAuthCode() . "\n";
-                echo "Charge Credit Card TRANS ID  : " . $tresponse->getTransId() . "\n";
-            }
-            else
-            {
-                echo "Charge Credit Card ERROR :  Invalid response\n";
-            }
+            echo "SUCCESS: transaction ID : " . $tresponse->getTransId() . "\n";
         }
         else
         {
-            echo  "Charge Credit Card Null response returned";
+            echo "ERROR :  Invalid response\n";
+            $errorMessages = $response->getMessages()->getMessage();
+
+            echo "Response : " . $errorMessages[0]->getCode() . "  " .$errorMessages[0]->getText() . "\n";
         }
-        dd($tresponse);
+        // else
+        // {
+        //     echo  "Charge Credit Card Null response returned";
+        // }
+        // dd($tresponse);
 //        return redirect('/');
     }
 }
