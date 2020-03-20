@@ -1,8 +1,7 @@
 <?php 
 //composer require facebook/graph-sdk
 require_once __DIR__ . '/vendor/autoload.php'; // change path as needed
-// https://blubirdinteractive.info/authorize/review/facebook.php?auth-status=success&auth-from=facebook
-// https://blubirdinteractive.info/authorize/review
+
 
 if(isset($_SERVER['HTTPS'])){
     $protocol = ($_SERVER['HTTPS'] && $_SERVER['HTTPS'] != "off") ? "https" : "http";
@@ -10,8 +9,7 @@ if(isset($_SERVER['HTTPS'])){
 else{
     $protocol = 'http';
 }
-$baseurl = $protocol . "://blubirdinteractive.info/authorize/review/facebook.php";
- // $baseurl = $protocol . "://" . $_SERVER['HTTP_HOST'] .'/review/facebook.php';
+$baseurl = $protocol . "://" . $_SERVER['HTTP_HOST'] .'/authorize/review/facebook.php';
 // print_r($baseurl);die;
 // $baseurl = $protocol . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
